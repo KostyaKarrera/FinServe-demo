@@ -39,7 +39,7 @@ body {
   overflow: hidden;
 }
 
-/* Status bar */
+/* Status bar — only on desktop phone frame */
 .statusbar {
   background: var(--dark);
   padding: 10px 22px 8px;
@@ -47,6 +47,9 @@ body {
   justify-content: space-between;
   align-items: center;
   flex-shrink: 0;
+}
+@media (max-width: 430px) {
+  .statusbar { display: none; }
 }
 .statusbar-time { font-size: 13px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
 .statusbar-icons { display: flex; gap: 6px; align-items: center; }
