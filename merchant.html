@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Café Ruska — Hallintapaneeli</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --amber: #c8956c;
+  --amber-light: #fdf6f0;
+  --green: #4a7c59;
+  --dark: #1a1a1a;
+  --muted: #888;
+  --border: #e8e8e8;
+  --bg: #faf9f7;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #e8e4df;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phone {
+  width: 100%;
+  max-width: 390px;
+  background: #f7f6f4;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Status bar */
+.statusbar {
+  background: var(--dark);
+  padding: 10px 22px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+.statusbar-time { font-size: 13px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.statusbar-icons { display: flex; gap: 6px; align-items: center; }
+.battery {
+  width: 20px; height: 10px;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  border-radius: 2px; position: relative;
+  display: flex; align-items: center; padding: 1.5px;
+}
+.battery::after {
+  content: '';
+  position: absolute; right: -4px; top: 50%; transform: translateY(-50%);
+  width: 2px; height: 5px;
+  background: rgba(255,255,255,0.5); border-radius: 0 1px 1px 0;
+}
+.battery-fill { height: 100%; background: #fff; border-radius: 1px; width: 70%; }
+.signal { display: flex; gap: 1.5px; align-items: flex-end; }
+.signal span { background: rgba(255,255,255,0.8); border-radius: 0.5px; width: 3px; }
+
+/* App header */
+.app-header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app-header-info { flex: 1; }
+.app-header-title { font-size: 17px; font-weight: 700; }
+.app-header-status {
+  font-size: 12px; color: var(--green);
+  display: flex; align-items: center; gap: 4px;
+  margin-top: 1px;
+}
+.status-dot {
+  width: 7px; height: 7px; background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.manual-btn {
+  border: 1.5px solid var(--amber); color: var(--amber);
+  background: var(--amber-light); padding: 6px 12px;
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer; border-radius: 6px; white-space: nowrap;
+}
+
+/* Kanban tabs */
+.kanban-tabs {
+  background: #fff;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.k-tab {
+  flex: 1; padding: 11px 6px;
+  text-align: center; border-bottom: 3px solid transparent;
+  font-size: 13px; font-weight: 500; color: var(--muted);
+  cursor: pointer; white-space: nowrap;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: inherit; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.k-tab.active { color: var(--dark); font-weight: 700; border-bottom-color: var(--amber); }
+.k-badge {
+  padding: 2px 7px; border-radius: 10px;
+  font-size: 11px; font-family: monospace; font-weight: 700;
+  background: #eee; color: var(--muted);
+}
+.k-tab.active .k-badge { background: var(--amber); color: #fff; }
+
+/* Order feed */
+.order-feed {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 80px;
+}
+
+/* Order card */
+.order-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 13px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.order-card.new {
+  border-color: var(--amber);
+  box-shadow: 0 2px 10px rgba(200,149,108,0.25);
+}
+.order-card.preparing { border-color: #ddd; opacity: 0.85; }
+.order-card.done { border-color: var(--green); }
+.order-card.exit { transform: translateX(60px); opacity: 0; }
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.order-num { font-size: 15px; font-weight: 700; }
+.order-meta { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: monospace; }
+.order-header-right { text-align: right; flex-shrink: 0; }
+.order-time { font-size: 12px; font-family: monospace; font-weight: 600; color: var(--amber); }
+.order-price { font-size: 14px; font-weight: 700; margin-top: 2px; }
+
+.order-items {
+  font-size: 13px; color: #555;
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.order-card-actions { display: flex; gap: 6px; }
+.btn-start {
+  flex: 1; background: var(--amber); color: #fff;
+  border: 2px solid var(--dark); border-radius: 7px;
+  padding: 8px; font-family: inherit; font-size: 14px;
+  font-weight: 700; cursor: pointer;
+  box-shadow: 2px 2px 0 var(--dark);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-start:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
+.btn-start.ready {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 2px 2px 0 rgba(74,124,89,0.4);
+}
+.btn-reject {
+  border: 2px solid var(--border); background: #fff;
+  border-radius: 7px; padding: 8px 12px;
+  font-family: inherit; font-size: 13px;
+  cursor: pointer; color: var(--muted);
+}
+
+/* Timer badge on new cards */
+.timer-badge {
+  display: inline-block;
+  background: var(--amber-light);
+  color: var(--amber);
+  font-size: 12px; font-weight: 700;
+  font-family: monospace;
+  border: 1px solid rgba(200,149,108,0.3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-top: 4px;
+}
+
+/* Incoming order notification */
+.incoming-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 12px 0;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.incoming-card {
+  background: #fff;
+  border: 3px solid var(--amber);
+  border-radius: 12px;
+  padding: 18px 16px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  animation: slideDown 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.incoming-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.incoming-icon {
+  width: 40px; height: 40px;
+  background: var(--amber); color: #fff;
+  border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700;
+  flex-shrink: 0;
+}
+.incoming-title { font-size: 17px; font-weight: 700; }
+.incoming-num { font-size: 12px; font-family: monospace; color: var(--muted); }
+
+.incoming-items {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: 12px;
+}
+.incoming-items strong { color: var(--dark); font-weight: 700; }
+
+.incoming-countdown {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.countdown-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.countdown-num {
+  font-size: 28px; font-weight: 700;
+  font-family: monospace; color: var(--amber);
+}
+
+.incoming-actions { display: flex; gap: 8px; }
+.btn-accept {
+  flex: 1; background: var(--amber); color: #fff;
+  border: 2.5px solid var(--dark); border-radius: 8px;
+  padding: 12px; font-family: inherit; font-size: 16px;
+  font-weight: 700; cursor: pointer;
+  box-shadow: 2px 2px 0 var(--dark);
+}
+.btn-accept:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--dark); }
+.btn-decline {
+  border: 2px solid var(--border); background: #fff;
+  border-radius: 8px; padding: 12px 16px;
+  font-family: inherit; font-size: 14px;
+  cursor: pointer; color: var(--muted);
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding: 8px 0 18px;
+  z-index: 100;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; cursor: pointer;
+  padding: 4px 0;
+}
+.nav-icon {
+  width: 22px; height: 22px;
+  border-radius: 5px; background: #eee;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.nav-item.active .nav-icon { background: var(--amber); }
+.nav-label { font-size: 10px; font-family: monospace; color: var(--muted); }
+.nav-item.active .nav-label { color: var(--amber); font-weight: 700; }
+
+/* Demo strip at bottom (on desktop) */
+.demo-back {
+  background: var(--dark);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.demo-back-text { font-size: 12px; color: #999; }
+.demo-back-link { font-size: 12px; color: var(--amber); text-decoration: none; font-weight: 600; }
+
+@media (min-width: 430px) {
+  body { padding: 28px 0; }
+  .phone { border-radius: 36px; box-shadow: 0 12px 60px rgba(0,0,0,0.22); min-height: auto; height: 780px; }
+  .order-feed { padding-bottom: 90px; }
+}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span class="statusbar-time" id="clock">9:41</span>
+    <div class="statusbar-icons">
+      <div class="signal">
+        <span style="height:4px"></span>
+        <span style="height:7px"></span>
+        <span style="height:10px"></span>
+        <span style="height:13px"></span>
+      </div>
+      <div style="font-size:10px; font-family:monospace; color:rgba(255,255,255,0.7)">5G</div>
+      <div class="battery"><div class="battery-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="app-header-info">
+      <div class="app-header-title">Tilaukset</div>
+      <div class="app-header-status">
+        <div class="status-dot"></div>
+        Café Ruska · live
+      </div>
+    </div>
+    <button class="manual-btn">+ Manuaali</button>
+  </div>
+
+  <!-- Kanban tabs -->
+  <div class="kanban-tabs">
+    <button class="k-tab active" id="tab-uusi" onclick="switchTab('uusi')">
+      Uusi <span class="k-badge" id="badge-uusi">3</span>
+    </button>
+    <button class="k-tab" id="tab-valmistetaan" onclick="switchTab('valmistetaan')">
+      Valmistetaan <span class="k-badge" id="badge-valmistetaan">1</span>
+    </button>
+    <button class="k-tab" id="tab-valmis" onclick="switchTab('valmis')">
+      Valmis <span class="k-badge" id="badge-valmis">1</span>
+    </button>
+  </div>
+
+  <!-- Order feed -->
+  <div class="order-feed" id="order-feed">
+    <!-- rendered by JS -->
+  </div>
+
+  <!-- Incoming order overlay (hidden initially) -->
+  <div class="incoming-overlay" id="incoming-overlay" style="display:none">
+    <div class="incoming-card">
+      <div class="incoming-header">
+        <div class="incoming-icon">!</div>
+        <div>
+          <div class="incoming-title">Uusi tilaus!</div>
+          <div class="incoming-num" id="incoming-num">#RU-2853 · juuri nyt</div>
+        </div>
+      </div>
+      <div class="incoming-items" id="incoming-items">
+        1× Kauralatte<br>
+        2× Korvapuusti<br>
+        <strong>Toimitus · €11,80</strong>
+      </div>
+      <div class="incoming-countdown">
+        <div class="countdown-label">Automaattinen hyväksyntä</div>
+        <div class="countdown-num" id="countdown">0:45</div>
+      </div>
+      <div class="incoming-actions">
+        <button class="btn-accept" onclick="acceptIncoming()">Hyväksy ✓</button>
+        <button class="btn-decline" onclick="rejectIncoming()">Hylkää</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">Tilaukset</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📖</div>
+      <div class="nav-label">Menu</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">Raportit</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">Asetukset</div>
+    </div>
+  </div>
+
+  <!-- Demo back link -->
+  <div class="demo-back" style="display:none" id="demo-back">
+    <span class="demo-back-text">FinServe Demo</span>
+    <a href="cafe-ruska.html" class="demo-back-link">← Asiakkaan näkymä</a>
+  </div>
+
+</div>
+
+<script>
+// ─── Order data ───
+let currentTab = 'uusi';
+let orderTimers = {};
+let countdownTimer = null;
+
+const orders = {
+  uusi: [
+    {
+      id: 'RU-2847',
+      meta: 'Toimitus · Fleminginkatu 24',
+      timeAgo: 1,
+      price: '€9,90',
+      items: '1× Cappuccino M\n1× Korvapuusti',
+      isNew: true,  // highlighted — from customer demo
+    },
+    {
+      id: 'RU-2846',
+      meta: 'Nouto · Teemu K.',
+      timeAgo: 5,
+      price: '€7,30',
+      items: '2× Espresso\n1× Munkki',
+      isNew: false,
+    },
+    {
+      id: 'RU-2845',
+      meta: 'Toimitus · Kallio',
+      timeAgo: 8,
+      price: '€22,50',
+      items: '3× Lounas + kahvi',
+      isNew: false,
+    },
+  ],
+  valmistetaan: [
+    {
+      id: 'RU-2844',
+      meta: 'Nouto · Maria L.',
+      timeAgo: 12,
+      price: '€12,40',
+      items: '1× Cappuccino L\n2× Korvapuusti',
+      isNew: false,
+    },
+  ],
+  valmis: [
+    {
+      id: 'RU-2843',
+      meta: 'Toimitus · Sörnäinen',
+      timeAgo: 22,
+      price: '€16,80',
+      items: '2× Kauralatte\n2× Croissant',
+      isNew: false,
+    },
+  ],
+};
+
+// ─── Render ───
+function renderOrders() {
+  const feed = document.getElementById('order-feed');
+  const list = orders[currentTab];
+
+  if (list.length === 0) {
+    feed.innerHTML = `
+      <div style="padding:40px 20px; text-align:center; color:var(--muted)">
+        <div style="font-size:40px; margin-bottom:12px">✓</div>
+        <div style="font-size:16px; font-weight:600">Kaikki tilaukset käsitelty</div>
+        <div style="font-size:13px; margin-top:6px">Hyvin tehty!</div>
+      </div>`;
+    return;
+  }
+
+  feed.innerHTML = list.map(order => {
+    const ageMin = order.timeAgo;
+    const isUrgent = currentTab === 'uusi' && order.isNew;
+    const itemLines = order.items.split('\n').join('<br>');
+
+    let actionBtns = '';
+    if (currentTab === 'uusi') {
+      actionBtns = `
+        <div class="order-card-actions">
+          <button class="btn-start" onclick="startOrder('${order.id}')">Aloita ✓</button>
+          <button class="btn-reject" onclick="rejectOrder('${order.id}')">Hylkää</button>
+        </div>`;
+    } else if (currentTab === 'valmistetaan') {
+      actionBtns = `
+        <div class="order-card-actions">
+          <button class="btn-start ready" onclick="readyOrder('${order.id}')">Valmis ✓</button>
+        </div>`;
+    }
+
+    return `
+      <div class="order-card ${isUrgent ? 'new' : ''}" id="card-${order.id}">
+        <div class="order-card-header">
+          <div>
+            <div class="order-num">#${order.id}</div>
+            <div class="order-meta">${order.meta}</div>
+            ${isUrgent ? '<div class="timer-badge" id="timer-' + order.id + '">0:' + String(ageMin * 60).padStart(2,'0') + '</div>' : ''}
+          </div>
+          <div class="order-header-right">
+            <div class="order-time" style="color:${isUrgent ? 'var(--amber)' : 'var(--muted)'}">${ageMin} min sitten</div>
+            <div class="order-price">${order.price}</div>
+          </div>
+        </div>
+        <div class="order-items">${itemLines}</div>
+        ${actionBtns}
+      </div>`;
+  }).join('');
+
+  // Start timer for new highlighted order
+  if (currentTab === 'uusi') {
+    const newOrder = list.find(o => o.isNew);
+    if (newOrder) startOrderTimer(newOrder.id, newOrder.timeAgo * 60);
+  }
+
+  updateBadges();
+}
+
+function startOrderTimer(id, startSec) {
+  if (orderTimers[id]) clearInterval(orderTimers[id]);
+  let secs = startSec;
+  orderTimers[id] = setInterval(() => {
+    secs++;
+    const el = document.getElementById('timer-' + id);
+    if (!el) { clearInterval(orderTimers[id]); return; }
+    const m = Math.floor(secs / 60), s = secs % 60;
+    el.textContent = m + ':' + String(s).padStart(2, '0');
+    if (secs > 300) el.style.color = '#e53935'; // red after 5 min
+  }, 1000);
+}
+
+function updateBadges() {
+  document.getElementById('badge-uusi').textContent = orders.uusi.length;
+  document.getElementById('badge-valmistetaan').textContent = orders.valmistetaan.length;
+  document.getElementById('badge-valmis').textContent = orders.valmis.length;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  ['uusi','valmistetaan','valmis'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  Object.values(orderTimers).forEach(t => clearInterval(t));
+  orderTimers = {};
+  renderOrders();
+}
+
+// ─── Actions ───
+function startOrder(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) { card.classList.add('exit'); }
+
+  setTimeout(() => {
+    const idx = orders.uusi.findIndex(o => o.id === id);
+    if (idx !== -1) {
+      const order = orders.uusi.splice(idx, 1)[0];
+      order.isNew = false;
+      order.timeAgo = 0;
+      orders.valmistetaan.unshift(order);
+    }
+    if (orderTimers[id]) clearInterval(orderTimers[id]);
+    renderOrders();
+  }, 220);
+}
+
+function rejectOrder(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) card.style.opacity = '0.4';
+  setTimeout(() => {
+    orders.uusi = orders.uusi.filter(o => o.id !== id);
+    renderOrders();
+  }, 300);
+}
+
+function readyOrder(id) {
+  const card = document.getElementById('card-' + id);
+  if (card) card.classList.add('exit');
+  setTimeout(() => {
+    const idx = orders.valmistetaan.findIndex(o => o.id === id);
+    if (idx !== -1) {
+      const order = orders.valmistetaan.splice(idx, 1)[0];
+      orders.valmis.unshift(order);
+    }
+    renderOrders();
+  }, 220);
+}
+
+// ─── Incoming order (demo magic: after 35 sec) ───
+const incomingOrders = [
+  { num: 'RU-2853', items: '1× Kauralatte<br>2× Korvapuusti<br><strong>Toimitus · €11,80</strong>' },
+  { num: 'RU-2854', items: '2× Espresso<br>1× Mustikkamuffin<br><strong>Nouto · €8,30</strong>' },
+  { num: 'RU-2855', items: '1× Cappuccino M<br>1× Croissant<br><strong>Toimitus · €7,60</strong>' },
+];
+let incomingIndex = 0;
+let incomingCountdown = 45;
+
+function scheduleIncoming() {
+  setTimeout(() => triggerIncoming(), 35000);
+}
+
+function triggerIncoming() {
+  const order = incomingOrders[incomingIndex % incomingOrders.length];
+  incomingIndex++;
+
+  document.getElementById('incoming-num').textContent = '#' + order.num + ' · juuri nyt';
+  document.getElementById('incoming-items').innerHTML = order.items;
+  incomingCountdown = 45;
+  document.getElementById('countdown').textContent = '0:45';
+  document.getElementById('incoming-overlay').style.display = 'flex';
+
+  countdownTimer = setInterval(() => {
+    incomingCountdown--;
+    const m = Math.floor(incomingCountdown / 60), s = incomingCountdown % 60;
+    document.getElementById('countdown').textContent = m + ':' + String(s).padStart(2,'0');
+    if (incomingCountdown <= 0) {
+      clearInterval(countdownTimer);
+      acceptIncoming();
+    }
+  }, 1000);
+}
+
+function acceptIncoming() {
+  clearInterval(countdownTimer);
+  document.getElementById('incoming-overlay').style.display = 'none';
+  const order = incomingOrders[(incomingIndex - 1) % incomingOrders.length];
+  // Add to uusi
+  orders.uusi.unshift({
+    id: order.num,
+    meta: order.items.includes('Toimitus') ? 'Toimitus · Kallio' : 'Nouto',
+    timeAgo: 0,
+    price: order.items.match(/€[\d,]+/)?.[0] || '€9,00',
+    items: order.items.replace(/<br>/g,'\n').replace(/<[^>]+>/g,'').replace(/^\s+|\s+$/gm,''),
+    isNew: false,
+  });
+  if (currentTab === 'uusi') renderOrders();
+  // Schedule next one
+  setTimeout(() => triggerIncoming(), 40000 + Math.random() * 20000);
+}
+
+function rejectIncoming() {
+  clearInterval(countdownTimer);
+  document.getElementById('incoming-overlay').style.display = 'none';
+  setTimeout(() => triggerIncoming(), 45000);
+}
+
+// ─── Clock ───
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  document.getElementById('clock').textContent = h + ':' + String(m).padStart(2, '0');
+}
+
+// ─── Init ───
+updateClock();
+setInterval(updateClock, 10000);
+renderOrders();
+scheduleIncoming();
+
+// Show demo-back strip if on desktop
+if (window.innerWidth >= 430) {
+  document.getElementById('demo-back').style.display = 'flex';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Café Ruska — Kallio, Helsinki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --amber: #c8956c;
+  --amber-light: #fdf6f0;
+  --green: #4a7c59;
+  --dark: #1a1a1a;
+  --text: #333;
+  --muted: #888;
+  --border: #e8e8e8;
+  --bg: #faf9f7;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #e8e4df;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 430px;
+  background: #fff;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Demo top strip */
+.demo-strip {
+  background: var(--dark);
+  color: #fff;
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.demo-strip-logo { font-size: 13px; font-weight: 700; color: var(--amber); }
+.demo-strip-text { color: #999; flex: 1; }
+.demo-strip-link {
+  color: var(--amber);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 8px; }
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--amber);
+  padding: 2px 10px 2px 0;
+  font-family: inherit;
+  line-height: 1;
+}
+.cafe-name { font-size: 18px; font-weight: 700; color: var(--dark); }
+.cart-btn {
+  position: relative;
+  background: #fff;
+  border: 2px solid var(--dark);
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 7px;
+  color: var(--dark);
+  transition: background 0.15s;
+}
+.cart-btn:active { background: var(--amber-light); }
+.cart-badge {
+  position: absolute;
+  top: -8px; right: -8px;
+  background: var(--amber);
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: badgePop 0.3s ease;
+}
+@keyframes badgePop {
+  0% { transform: scale(0.5); }
+  60% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* Screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ──────── HOME ──────── */
+.hero {
+  position: relative;
+  height: 290px;
+  overflow: hidden;
+  background: #c8a882;
+}
+.hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.55) 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding: 28px 24px; gap: 10px;
+}
+.hero-title {
+  font-size: 26px; font-weight: 700; color: #fff;
+  text-align: center; text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.hero-sub { font-size: 14px; color: rgba(255,255,255,0.88); text-align: center; }
+.btn-primary {
+  background: var(--amber); color: #fff; border: none;
+  padding: 14px 32px; font-family: inherit;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; border-radius: 8px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.25);
+  transition: transform 0.1s, box-shadow 0.1s;
+  width: 100%; max-width: 260px;
+}
+.btn-primary:active { transform: scale(0.97); box-shadow: 0 1px 6px rgba(0,0,0,0.2); }
+
+.section { padding: 26px 18px; border-bottom: 1px solid var(--border); }
+.section-label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px;
+}
+.section-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+
+.specials-list { display: flex; flex-direction: column; gap: 10px; }
+.special-card {
+  display: flex; gap: 12px;
+  border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; cursor: pointer;
+  transition: box-shadow 0.15s;
+  background: #fff;
+}
+.special-card:active { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.special-img { width: 78px; height: 78px; object-fit: cover; flex-shrink: 0; background: #e8e4df; }
+.special-info { padding: 12px 12px 12px 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.special-name { font-size: 15px; font-weight: 600; }
+.special-desc { font-size: 13px; color: var(--muted); }
+.special-price { font-size: 16px; font-weight: 700; color: var(--amber); margin-top: 3px; }
+
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center; }
+.about-img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; background: #e8e4df; }
+.about-text { font-size: 14px; color: #555; line-height: 1.65; }
+.about-hours { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.8; }
+
+/* ──────── MENU ──────── */
+.category-tabs {
+  background: #fff; border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; position: sticky; top: 56px; z-index: 50;
+}
+.category-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  flex-shrink: 0; padding: 13px 16px;
+  font-size: 14px; font-weight: 500; color: var(--muted);
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all 0.15s; white-space: nowrap;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: inherit;
+}
+.cat-tab.active { color: var(--dark); font-weight: 700; border-bottom-color: var(--amber); }
+
+.menu-grid {
+  padding: 18px 14px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.menu-card {
+  border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+  background: #fff;
+}
+.menu-card:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.menu-card.wide { grid-column: 1 / -1; }
+.menu-card-img { width: 100%; height: 108px; object-fit: cover; background: #e8e4df; display: block; }
+.menu-card.wide .menu-card-img { height: 150px; }
+.menu-card-body { padding: 10px 11px 12px; }
+.menu-card-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.menu-card-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.4; }
+.menu-card-footer { display: flex; justify-content: space-between; align-items: center; }
+.menu-card-price { font-size: 15px; font-weight: 700; color: var(--dark); }
+.add-btn {
+  background: var(--amber); color: #fff; border: none;
+  width: 32px; height: 32px; border-radius: 6px;
+  font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s; flex-shrink: 0;
+}
+.add-btn:active { transform: scale(0.82); }
+
+.goto-cart-bar {
+  position: sticky; bottom: 0;
+  background: #fff; border-top: 1px solid var(--border);
+  padding: 12px 16px 20px;
+}
+
+/* ──────── CART ──────── */
+.delivery-toggle { display: flex; border-bottom: 1px solid var(--border); }
+.delivery-tab {
+  flex: 1; padding: 14px; text-align: center;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; font-family: inherit;
+  transition: all 0.15s; background: #fff; color: var(--muted);
+  border-bottom: 3px solid transparent;
+}
+.delivery-tab.active {
+  background: var(--amber-light); color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+
+.cart-items { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+.cart-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.cart-item-img { width: 54px; height: 54px; object-fit: cover; border-radius: 7px; flex-shrink: 0; background: #e8e4df; }
+.cart-item-info { flex: 1; }
+.cart-item-name { font-size: 15px; font-weight: 600; }
+.cart-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.cart-item-price { font-size: 15px; font-weight: 700; }
+.qty-control { display: flex; align-items: center; gap: 8px; }
+.qty-btn {
+  width: 30px; height: 30px; border: 1.5px solid var(--border);
+  background: #fff; border-radius: 6px; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: inherit; color: var(--dark); transition: background 0.1s;
+}
+.qty-btn:active { background: var(--amber-light); }
+.qty-num { font-size: 15px; font-weight: 600; width: 20px; text-align: center; }
+
+.cart-empty {
+  padding: 60px 20px; display: flex; flex-direction: column;
+  align-items: center; gap: 14px; color: var(--muted); text-align: center;
+}
+.cart-empty-icon { font-size: 52px; }
+
+.cart-summary {
+  padding: 16px 18px 32px;
+  border-top: 1px solid var(--border);
+}
+.summary-row {
+  display: flex; justify-content: space-between;
+  font-size: 14px; color: var(--muted); margin-bottom: 6px;
+}
+.summary-vat { font-size: 12px; color: #bbb; margin-bottom: 10px; }
+.summary-total {
+  display: flex; justify-content: space-between;
+  font-size: 18px; font-weight: 700;
+  border-top: 2px solid var(--dark);
+  padding-top: 10px; margin: 4px 0 16px;
+}
+.delivery-time { text-align: center; font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+/* ──────── CHECKOUT ──────── */
+.checkout-form { padding: 20px 18px; display: flex; flex-direction: column; gap: 22px; }
+.form-label {
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;
+}
+.input-field {
+  border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 11px 14px; font-size: 15px; color: var(--text);
+  font-family: inherit; background: #fff; width: 100%;
+  outline: none;
+}
+.input-field:focus { border-color: var(--amber); }
+.input-row { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+.postal-valid { font-size: 12px; color: var(--green); font-weight: 500; margin-top: 5px; }
+
+.payment-options { display: flex; flex-direction: column; gap: 8px; }
+.payment-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 15px; border: 2px solid var(--border);
+  border-radius: 10px; cursor: pointer; transition: all 0.15s;
+}
+.payment-option.selected { border-color: var(--amber); background: var(--amber-light); }
+.pay-radio {
+  width: 18px; height: 18px; border: 2px solid #ccc;
+  border-radius: 50%; flex-shrink: 0; transition: all 0.15s;
+}
+.payment-option.selected .pay-radio { border-color: var(--amber); background: var(--amber); }
+.pay-name { font-size: 15px; font-weight: 500; flex: 1; }
+.pay-badge { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+.checkout-summary {
+  margin: 0 18px 20px;
+  background: var(--bg); border-radius: 10px; padding: 16px;
+}
+.checkout-summary-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.checkout-summary-item {
+  display: flex; justify-content: space-between;
+  font-size: 14px; margin-bottom: 6px;
+}
+.checkout-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.checkout-total {
+  display: flex; justify-content: space-between;
+  font-size: 18px; font-weight: 700; margin-top: 6px;
+}
+
+.checkout-cta { padding: 4px 18px 36px; }
+
+/* ──────── CONFIRMATION ──────── */
+.confirm-wrap {
+  padding: 40px 20px; display: flex; flex-direction: column;
+  align-items: center; text-align: center; gap: 14px;
+}
+.checkmark {
+  width: 80px; height: 80px; background: #f0faf4;
+  border: 3px solid var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 38px; color: var(--green);
+  animation: checkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes checkPop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.confirm-title { font-size: 24px; font-weight: 700; }
+.confirm-number { font-size: 15px; color: var(--muted); }
+.confirm-box {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px; text-align: left;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.confirm-row { display: flex; justify-content: space-between; font-size: 14px; gap: 12px; }
+.confirm-label { color: var(--muted); flex-shrink: 0; }
+.confirm-value { font-weight: 600; text-align: right; }
+.confirm-value.green { color: var(--green); }
+.confirm-email { font-size: 13px; color: var(--muted); }
+.confirm-actions { display: flex; gap: 10px; width: 100%; }
+.btn-secondary {
+  flex: 1; background: #fff; border: 2px solid var(--border);
+  padding: 13px; font-family: inherit; font-size: 14px;
+  font-weight: 600; cursor: pointer; border-radius: 8px; color: var(--dark);
+}
+.btn-secondary:active { background: var(--bg); }
+
+.merchant-cta-block {
+  width: 100%; margin-top: 8px; padding: 16px 18px;
+  background: var(--dark); border-radius: 10px; color: #fff;
+  font-size: 13px; text-align: center; line-height: 1.5;
+  text-decoration: none; display: block; transition: opacity 0.15s;
+}
+.merchant-cta-block:active { opacity: 0.8; }
+.merchant-cta-block strong { display: block; font-size: 15px; margin-top: 4px; color: var(--amber); }
+
+/* ──────── MOBILEPAY MODAL ──────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: flex-end;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-card {
+  width: 100%; max-width: 430px;
+  margin: 0 auto; background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 22px 40px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.mp-handle { width: 40px; height: 4px; background: #ddd; border-radius: 4px; margin-bottom: 2px; }
+.mp-logo { font-size: 22px; font-weight: 800; color: #5a78ff; letter-spacing: -0.5px; }
+.mp-amount { font-size: 36px; font-weight: 700; color: var(--dark); }
+.mp-cafe { font-size: 13px; color: var(--muted); margin-top: -8px; }
+
+.mp-phone-row {
+  display: flex; align-items: center; gap: 12px;
+  background: #f5f7ff; border: 2px solid #5a78ff;
+  border-radius: 10px; padding: 13px 16px; width: 100%;
+}
+.mp-phone-num { font-size: 16px; font-weight: 600; color: #5a78ff; }
+
+.mp-btn {
+  width: 100%; background: #5a78ff; color: #fff;
+  border: none; border-radius: 10px; padding: 15px;
+  font-size: 17px; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.mp-btn:active { opacity: 0.88; }
+
+.mp-spinner {
+  width: 50px; height: 50px;
+  border: 4px solid #e8ecff; border-top-color: #5a78ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.mp-success-icon {
+  width: 66px; height: 66px; background: #f0faf4;
+  border: 3px solid var(--green); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; color: var(--green);
+  animation: checkPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.mp-success-text { font-size: 20px; font-weight: 700; color: var(--green); }
+.mp-success-amount { font-size: 30px; font-weight: 700; }
+
+@media (min-width: 431px) {
+  body { padding: 28px 0; }
+  .app { border-radius: 14px; box-shadow: 0 10px 50px rgba(0,0,0,0.18); min-height: auto; }
+  .modal-card { border-radius: 20px; margin-bottom: 44px; }
+  .modal-overlay { align-items: center; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Demo strip -->
+  <div class="demo-strip">
+    <span class="demo-strip-logo">FinServe</span>
+    <span class="demo-strip-text">Esimerkki asiakkaasi sivustosta</span>
+    <a href="merchant.html" class="demo-strip-link">Hallintapaneeli →</a>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn" id="back-btn" onclick="goBack()">←</button>
+      <div class="cafe-name">Café Ruska</div>
+    </div>
+    <button class="cart-btn" onclick="showScreen('cart')">
+      🛒 Kori
+      <span class="cart-badge" id="cart-badge" style="display:none">0</span>
+    </button>
+  </header>
+
+  <!-- ═══════════════ HOME ═══════════════ -->
+  <div id="screen-home" class="screen active">
+    <div class="hero">
+      <img class="hero-img"
+        src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&q=82"
+        alt="Café Ruska sisätila">
+      <div class="hero-overlay">
+        <h1 class="hero-title">Tervetuloa Café Ruskaan</h1>
+        <p class="hero-sub">Tuoretta kahvia ja leivonnaisia Kalliossa, Helsinki</p>
+        <button class="btn-primary" onclick="showScreen('menu')">Tilaa nyt →</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Tänään</div>
+      <div class="section-title">Päivän tarjoukset</div>
+      <div class="specials-list">
+        <div class="special-card" onclick="handleSpecialClick('korvapuusti','Korvapuusti',280)">
+          <img class="special-img" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&auto=format&q=80" alt="Korvapuusti">
+          <div class="special-info">
+            <div class="special-name">Korvapuusti</div>
+            <div class="special-desc">Tuore kanelipulla</div>
+            <div class="special-price">€2,80</div>
+          </div>
+        </div>
+        <div class="special-card" onclick="showScreen('menu')">
+          <img class="special-img" src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=200&auto=format&q=80" alt="Lounas">
+          <div class="special-info">
+            <div class="special-name">Lounas + kahvi</div>
+            <div class="special-desc">Päivän lounas + juoma</div>
+            <div class="special-price">€13,50</div>
+          </div>
+        </div>
+        <div class="special-card" onclick="handleSpecialClick('kauralatte','Kauralatte',450)">
+          <img class="special-img" src="https://images.unsplash.com/photo-1534040385115-33dcb3acba5b?w=200&auto=format&q=80" alt="Kauralatte">
+          <div class="special-info">
+            <div class="special-name">Kauralatte</div>
+            <div class="special-desc">Vegan-vaihtoehto</div>
+            <div class="special-price">€4,50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="border-bottom:none; padding-bottom:40px">
+      <div class="section-label">Meistä</div>
+      <div class="section-title">Pieni kahvila sydämellä</div>
+      <div class="about-grid">
+        <div>
+          <p class="about-text">Olemme toimineet Kallion sydämessä vuodesta 2018. Käytämme luomupapuja ja paikallisia raaka-aineita.</p>
+          <p class="about-hours">Ma–Pe: 07:00–18:00<br>La: 08:00–16:00<br>Su: suljettu</p>
+        </div>
+        <img class="about-img" src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=300&auto=format&q=80" alt="Kahvila">
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MENU ═══════════════ -->
+  <div id="screen-menu" class="screen">
+    <div class="category-tabs">
+      <button class="cat-tab active" onclick="switchCat('juomat',this)">Juomat</button>
+      <button class="cat-tab" onclick="switchCat('leivonnaiset',this)">Leivonnaiset</button>
+      <button class="cat-tab" onclick="switchCat('lounas',this)">Lounas</button>
+      <button class="cat-tab" onclick="switchCat('viikonloppu',this)">Viikonloppu</button>
+    </div>
+
+    <!-- Juomat -->
+    <div class="menu-grid" id="cat-juomat">
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&auto=format&q=80" alt="Espresso">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Espresso</div>
+          <div class="menu-card-desc">Luomupavut · 30ml</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€2,50</span>
+            <button class="add-btn" onclick="addToCart(event,'espresso','Espresso',250)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&auto=format&q=80" alt="Cappuccino">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Cappuccino</div>
+          <div class="menu-card-desc">S / M / L</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€3,80</span>
+            <button class="add-btn" onclick="addToCart(event,'cappuccino','Cappuccino M',420)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1534040385115-33dcb3acba5b?w=400&auto=format&q=80" alt="Kauralatte">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Kauralatte</div>
+          <div class="menu-card-desc">Vegan · kaura</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€4,50</span>
+            <button class="add-btn" onclick="addToCart(event,'kauralatte','Kauralatte',450)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&auto=format&q=80" alt="Tee">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Tee</div>
+          <div class="menu-card-desc">6 makua</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€3,00</span>
+            <button class="add-btn" onclick="addToCart(event,'tee','Tee',300)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1542444459-81f8a973ba8c?w=400&auto=format&q=80" alt="Kaakao">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Kaakao</div>
+          <div class="menu-card-desc">Hot chocolate</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€4,00</span>
+            <button class="add-btn" onclick="addToCart(event,'kaakao','Kaakao',400)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&auto=format&q=80" alt="Tuore mehu">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Tuore mehu</div>
+          <div class="menu-card-desc">Appelsiini / porkkana</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€4,80</span>
+            <button class="add-btn" onclick="addToCart(event,'mehu','Tuore mehu',480)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leivonnaiset -->
+    <div class="menu-grid" id="cat-leivonnaiset" style="display:none">
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&q=80" alt="Korvapuusti">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Korvapuusti</div>
+          <div class="menu-card-desc">Kaneli · tuore</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€2,80</span>
+            <button class="add-btn" onclick="addToCart(event,'korvapuusti','Korvapuusti',280)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&auto=format&q=80" alt="Munkki">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Munkki</div>
+          <div class="menu-card-desc">Sokeri · hillotäyte</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€2,20</span>
+            <button class="add-btn" onclick="addToCart(event,'munkki','Munkki',220)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1582716401301-b2407dc7563d?w=400&auto=format&q=80" alt="Muffin">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Mustikkamuffin</div>
+          <div class="menu-card-desc">Tuore · mustikka</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€3,50</span>
+            <button class="add-btn" onclick="addToCart(event,'muffin','Mustikkamuffin',350)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&auto=format&q=80" alt="Croissant">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Croissant</div>
+          <div class="menu-card-desc">Voi · tuore</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€3,20</span>
+            <button class="add-btn" onclick="addToCart(event,'croissant','Croissant',320)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lounas -->
+    <div class="menu-grid" id="cat-lounas" style="display:none">
+      <div class="menu-card wide">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=800&auto=format&q=80" alt="Lounas">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Päivän lounas</div>
+          <div class="menu-card-desc">Salaatti + pääruoka + juoma · vaihtuu päivittäin</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€13,50</span>
+            <button class="add-btn" onclick="addToCart(event,'lounas','Päivän lounas',1350)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&auto=format&q=80" alt="Salaatti">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Salaattilounas</div>
+          <div class="menu-card-desc">Kasvissalaatti + leipä</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€11,00</span>
+            <button class="add-btn" onclick="addToCart(event,'salaatti','Salaattilounas',1100)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&auto=format&q=80" alt="Keitto">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Tomaattikeitto</div>
+          <div class="menu-card-desc">+ Leipä + kahvi</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€9,50</span>
+            <button class="add-btn" onclick="addToCart(event,'keitto','Tomaattikeitto',950)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viikonloppu -->
+    <div class="menu-grid" id="cat-viikonloppu" style="display:none">
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&auto=format&q=80" alt="Brunch">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Brunch setti</div>
+          <div class="menu-card-desc">La–Su · 10:00–14:00</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€18,00</span>
+            <button class="add-btn" onclick="addToCart(event,'brunch','Brunch setti',1800)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="menu-card">
+        <img class="menu-card-img" src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&auto=format&q=80" alt="Pannukakku">
+        <div class="menu-card-body">
+          <div class="menu-card-name">Pannukakku</div>
+          <div class="menu-card-desc">Hilloa + kermaa</div>
+          <div class="menu-card-footer">
+            <span class="menu-card-price">€9,00</span>
+            <button class="add-btn" onclick="addToCart(event,'pannukakku','Pannukakku',900)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky goto cart -->
+    <div class="goto-cart-bar" id="goto-cart-bar" style="display:none">
+      <button class="btn-primary" onclick="showScreen('cart')" style="max-width:100%">
+        Siirry ostoskoriin (<span id="goto-cart-count">0</span> tuotetta) →
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CART ═══════════════ -->
+  <div id="screen-cart" class="screen">
+    <div class="delivery-toggle">
+      <button class="delivery-tab active" id="tab-toimitus" onclick="selectDelivery('toimitus')">🚴 Kotiinkuljetus</button>
+      <button class="delivery-tab" id="tab-nouto" onclick="selectDelivery('nouto')">🏃 Nouto</button>
+    </div>
+
+    <div class="cart-items" id="cart-items-list"></div>
+
+    <div id="cart-empty-block" style="display:none" class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p style="font-size:17px">Ostoskorisi on tyhjä</p>
+      <button class="btn-primary" onclick="showScreen('menu')" style="max-width:220px">Lisää tuotteita</button>
+    </div>
+
+    <div id="cart-summary-block" class="cart-summary">
+      <div class="summary-row"><span>Välisumma</span><span id="subtotal">€0,00</span></div>
+      <div class="summary-row" id="delivery-fee-row"><span>Toimitusmaksu</span><span>€2,90</span></div>
+      <div class="summary-vat">sis. ALV 14 % · <span id="vat-amount">€0,00</span></div>
+      <div class="summary-total">
+        <span>Yhteensä</span>
+        <span id="cart-total">€0,00</span>
+      </div>
+      <button class="btn-primary" onclick="showScreen('checkout')" style="max-width:100%">Siirry kassalle →</button>
+      <div class="delivery-time" id="delivery-time-text">Arvioitu toimitusaika: 25–35 min</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CHECKOUT ═══════════════ -->
+  <div id="screen-checkout" class="screen">
+    <div class="checkout-form">
+      <div>
+        <div class="form-label">Toimitustapa</div>
+        <div class="delivery-toggle" style="border-radius:8px; overflow:hidden; border:1.5px solid var(--border)">
+          <button class="delivery-tab active" style="border-radius:0" id="co-tab-toimitus" onclick="selectDelivery('toimitus')">🚴 Kotiinkuljetus</button>
+          <button class="delivery-tab" style="border-radius:0" id="co-tab-nouto" onclick="selectDelivery('nouto')">🏃 Nouto</button>
+        </div>
+      </div>
+
+      <div id="address-section">
+        <div class="form-label">Toimitusosoite</div>
+        <input type="text" class="input-field" value="Fleminginkatu 24" placeholder="Katuosoite" style="margin-bottom:8px">
+        <div class="input-row">
+          <input type="text" class="input-field" value="00530" placeholder="Postinumero">
+          <input type="text" class="input-field" value="Helsinki" placeholder="Kaupunki">
+        </div>
+        <div class="postal-valid">✓ Toimitetaan tähän postinumeroon</div>
+      </div>
+
+      <div>
+        <div class="form-label">Yhteystiedot</div>
+        <input type="text" class="input-field" value="Aino Mäkinen" placeholder="Nimi" style="margin-bottom:8px">
+        <input type="tel" class="input-field" value="+358 40 123 4567" placeholder="Puhelin">
+      </div>
+
+      <div>
+        <div class="form-label">Maksutapa</div>
+        <div class="payment-options">
+          <div class="payment-option selected" onclick="selectPayment(this)">
+            <div class="pay-radio"></div>
+            <span class="pay-name">📱 MobilePay</span>
+            <span class="pay-badge">FI suosikki</span>
+          </div>
+          <div class="payment-option" onclick="selectPayment(this)">
+            <div class="pay-radio"></div>
+            <span class="pay-name">💳 Kortti (Visa / MC)</span>
+          </div>
+          <div class="payment-option" onclick="selectPayment(this)">
+            <div class="pay-radio"></div>
+            <span class="pay-name">🅺 Klarna</span>
+            <span class="pay-badge">Maksa myöhemmin</span>
+          </div>
+          <div class="payment-option" onclick="selectPayment(this)">
+            <div class="pay-radio"></div>
+            <span class="pay-name"> Apple / Google Pay</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="checkout-summary">
+      <div class="checkout-summary-title">Tilauksen yhteenveto</div>
+      <div id="checkout-items-list"></div>
+      <hr class="checkout-divider">
+      <div class="summary-row"><span>Välisumma</span><span id="checkout-subtotal">€0,00</span></div>
+      <div class="summary-row" id="checkout-delivery-row"><span>Toimitusmaksu</span><span>€2,90</span></div>
+      <div style="font-size:12px; color:#bbb; display:flex; justify-content:space-between; margin-bottom:8px">
+        <span>josta ALV 14 %</span><span id="checkout-vat">€0,00</span>
+      </div>
+      <div class="checkout-total">
+        <span>Yhteensä</span>
+        <span id="checkout-total">€0,00</span>
+      </div>
+      <div style="font-size:13px; color:var(--muted); margin-top:8px">Arvioitu: 25–35 min · Fleminginkatu 24</div>
+    </div>
+
+    <div class="checkout-cta">
+      <button class="btn-primary" onclick="showMobilePay()" style="max-width:100%">
+        Tilaa nyt <span id="order-btn-amount">€0,00</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ CONFIRMATION ═══════════════ -->
+  <div id="screen-confirm" class="screen">
+    <div class="confirm-wrap">
+      <div class="checkmark">✓</div>
+      <div class="confirm-title">Tilaus vastaanotettu!</div>
+      <div class="confirm-number">Tilausnumero: #RU-2847</div>
+
+      <div class="confirm-box">
+        <div class="confirm-row">
+          <span class="confirm-label">Tuotteet</span>
+          <span class="confirm-value" id="confirm-products">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Yhteensä</span>
+          <span class="confirm-value" id="confirm-total">—</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Arvioitu aika</span>
+          <span class="confirm-value green">~30 min</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Osoite</span>
+          <span class="confirm-value">Fleminginkatu 24, 00530</span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Maksu</span>
+          <span class="confirm-value">MobilePay ✓</span>
+        </div>
+      </div>
+
+      <div class="confirm-email">Kuitti lähetetty osoitteeseen aino@example.fi</div>
+
+      <div class="confirm-actions">
+        <button class="btn-secondary" onclick="resetDemo()">Takaisin menuun</button>
+        <button class="btn-primary" style="max-width:none; flex:1" onclick="alert('Tilaus #RU-2847 on valmistuksessa 🍵')">Seuraa tilausta</button>
+      </div>
+
+      <a href="merchant.html" class="merchant-cta-block">
+        Haluatko nähdä, miten tilaukset näyttävät sinulle?
+        <strong>→ Avaa hallintapaneeli</strong>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════ MOBILEPAY MODAL ═══════════════ -->
+  <div class="modal-overlay" id="mobilepay-modal" style="display:none" onclick="handleOverlayClick(event)">
+    <div class="modal-card">
+      <div class="mp-handle"></div>
+
+      <!-- Step 1: Confirm -->
+      <div id="mp-s1" style="width:100%; display:flex; flex-direction:column; align-items:center; gap:14px">
+        <div class="mp-logo">MobilePay</div>
+        <div class="mp-amount" id="mp-amount">€9,90</div>
+        <div class="mp-cafe">Café Ruska · Kallio, Helsinki</div>
+        <div class="mp-phone-row">
+          <span style="font-size:22px">📱</span>
+          <span class="mp-phone-num">+358 40 123 4567</span>
+        </div>
+        <p style="font-size:13px; color:var(--muted); text-align:center">
+          Hyväksy maksu MobilePay-sovelluksessa
+        </p>
+        <button class="mp-btn" onclick="startMpProcessing()">Maksa MobilePay →</button>
+      </div>
+
+      <!-- Step 2: Processing -->
+      <div id="mp-s2" style="display:none; flex-direction:column; align-items:center; gap:14px">
+        <div class="mp-logo">MobilePay</div>
+        <div class="mp-spinner"></div>
+        <p style="font-size:15px; color:var(--muted)">Odotetaan hyväksyntää...</p>
+        <p style="font-size:13px; color:#bbb">+358 40 123 4567</p>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div id="mp-s3" style="display:none; flex-direction:column; align-items:center; gap:14px">
+        <div class="mp-logo">MobilePay</div>
+        <div class="mp-success-icon">✓</div>
+        <div class="mp-success-text">Maksu hyväksytty!</div>
+        <div class="mp-success-amount" id="mp-success-amount">€9,90</div>
+        <p style="font-size:14px; color:var(--muted)">Tilaus lähetetty Café Ruskalle</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ─── State ───
+let cart = [];
+let deliveryType = 'toimitus';
+const DELIVERY_FEE = 290;
+const VAT_RATE = 0.14;
+
+const itemImages = {
+  espresso:     'https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=120&auto=format&q=70',
+  cappuccino:   'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=120&auto=format&q=70',
+  kauralatte:   'https://images.unsplash.com/photo-1534040385115-33dcb3acba5b?w=120&auto=format&q=70',
+  tee:          'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=120&auto=format&q=70',
+  kaakao:       'https://images.unsplash.com/photo-1542444459-81f8a973ba8c?w=120&auto=format&q=70',
+  mehu:         'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=120&auto=format&q=70',
+  korvapuusti:  'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=120&auto=format&q=70',
+  munkki:       'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=120&auto=format&q=70',
+  muffin:       'https://images.unsplash.com/photo-1582716401301-b2407dc7563d?w=120&auto=format&q=70',
+  croissant:    'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=120&auto=format&q=70',
+  lounas:       'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=120&auto=format&q=70',
+  salaatti:     'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=120&auto=format&q=70',
+  keitto:       'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=120&auto=format&q=70',
+  brunch:       'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&auto=format&q=70',
+  pannukakku:   'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=120&auto=format&q=70',
+};
+
+// ─── Navigation ───
+let history = ['home'];
+
+function showScreen(name) {
+  if (history[history.length - 1] !== name) history.push(name);
+  _renderScreen(name);
+}
+
+function goBack() {
+  if (history.length > 1) { history.pop(); _renderScreen(history[history.length - 1]); }
+}
+
+function _renderScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('back-btn').style.display = history.length > 1 ? 'block' : 'none';
+  window.scrollTo(0, 0);
+  if (name === 'cart') _renderCart();
+  if (name === 'checkout') _renderCheckout();
+  if (name === 'menu') _updateGotoCartBar();
+}
+
+// ─── Cart ───
+function addToCart(e, id, name, price) {
+  const existing = cart.find(i => i.id === id);
+  if (existing) { existing.qty++; }
+  else { cart.push({ id, name, price, qty: 1 }); }
+  _updateBadge();
+  _updateGotoCartBar();
+  // button bounce
+  const btn = e.currentTarget;
+  btn.style.transform = 'scale(0.75)';
+  setTimeout(() => btn.style.transform = '', 150);
+}
+
+function handleSpecialClick(id, name, price) {
+  addToCart({ currentTarget: { style: {} } }, id, name, price);
+  showScreen('menu');
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  _updateBadge();
+  _renderCart();
+}
+
+function _updateBadge() {
+  const total = cart.reduce((s, i) => s + i.qty, 0);
+  const badge = document.getElementById('cart-badge');
+  if (total > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = total;
+    badge.style.animation = 'none';
+    badge.offsetHeight;
+    badge.style.animation = 'badgePop 0.3s ease';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function _updateGotoCartBar() {
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const bar = document.getElementById('goto-cart-bar');
+  bar.style.display = count > 0 ? 'block' : 'none';
+  document.getElementById('goto-cart-count').textContent = count;
+}
+
+function _getSubtotal() { return cart.reduce((s, i) => s + i.price * i.qty, 0); }
+function _getFee() { return deliveryType === 'toimitus' ? DELIVERY_FEE : 0; }
+function _getTotal() { return _getSubtotal() + _getFee(); }
+function _fmt(cents) { return '€' + (cents / 100).toFixed(2).replace('.', ','); }
+
+function _renderCart() {
+  const list = document.getElementById('cart-items-list');
+  const empty = document.getElementById('cart-empty-block');
+  const summary = document.getElementById('cart-summary-block');
+
+  if (cart.length === 0) {
+    list.style.display = 'none'; empty.style.display = 'flex'; summary.style.display = 'none';
+    return;
+  }
+  list.style.display = 'flex'; empty.style.display = 'none'; summary.style.display = 'block';
+
+  list.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img class="cart-item-img" src="${itemImages[item.id] || ''}" alt="${item.name}">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+      </div>
+      <div class="cart-item-right">
+        <span class="cart-item-price">${_fmt(item.price * item.qty)}</span>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.id}',+1)">+</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const sub = _getSubtotal(), fee = _getFee(), total = sub + fee;
+  const vat = Math.round(total * VAT_RATE / (1 + VAT_RATE));
+  document.getElementById('subtotal').textContent = _fmt(sub);
+  document.getElementById('cart-total').textContent = _fmt(total);
+  document.getElementById('vat-amount').textContent = _fmt(vat);
+  document.getElementById('delivery-fee-row').style.display = deliveryType === 'toimitus' ? 'flex' : 'none';
+  document.getElementById('delivery-time-text').textContent = deliveryType === 'toimitus'
+    ? 'Arvioitu toimitusaika: 25–35 min'
+    : 'Nouto valmis noin 15–20 min kuluttua';
+}
+
+function _renderCheckout() {
+  const sub = _getSubtotal(), fee = _getFee(), total = sub + fee;
+  const vat = Math.round(total * VAT_RATE / (1 + VAT_RATE));
+
+  document.getElementById('checkout-subtotal').textContent = _fmt(sub);
+  document.getElementById('checkout-total').textContent = _fmt(total);
+  document.getElementById('checkout-vat').textContent = _fmt(vat);
+  document.getElementById('order-btn-amount').textContent = _fmt(total);
+  document.getElementById('checkout-delivery-row').style.display = deliveryType === 'toimitus' ? 'flex' : 'none';
+
+  document.getElementById('checkout-items-list').innerHTML = cart.map(i =>
+    `<div class="checkout-summary-item"><span>${i.qty}× ${i.name}</span><span>${_fmt(i.price * i.qty)}</span></div>`
+  ).join('');
+
+  document.getElementById('mp-amount').textContent = _fmt(total);
+  document.getElementById('mp-success-amount').textContent = _fmt(total);
+
+  // Prefill confirm screen
+  document.getElementById('confirm-products').textContent = cart.map(i => i.name).join(', ');
+  document.getElementById('confirm-total').textContent = _fmt(total);
+}
+
+// ─── Delivery / Payment ───
+function selectDelivery(type) {
+  deliveryType = type;
+  ['toimitus','nouto'].forEach(t => {
+    const a = document.getElementById('tab-' + t);
+    const b = document.getElementById('co-tab-' + t);
+    if (a) a.classList.toggle('active', t === type);
+    if (b) b.classList.toggle('active', t === type);
+  });
+  const addr = document.getElementById('address-section');
+  if (addr) addr.style.display = type === 'toimitus' ? 'block' : 'none';
+  _renderCart();
+  _renderCheckout();
+}
+
+function selectPayment(el) {
+  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ─── Category tabs ───
+function switchCat(cat, btn) {
+  ['juomat','leivonnaiset','lounas','viikonloppu'].forEach(c => {
+    const el = document.getElementById('cat-' + c);
+    if (el) el.style.display = c === cat ? 'grid' : 'none';
+  });
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─── MobilePay ───
+function showMobilePay() {
+  if (cart.length === 0) { showScreen('menu'); return; }
+  _renderCheckout();
+  ['mp-s1','mp-s2','mp-s3'].forEach(id => {
+    document.getElementById(id).style.display = id === 'mp-s1' ? 'flex' : 'none';
+  });
+  document.getElementById('mobilepay-modal').style.display = 'flex';
+}
+
+function startMpProcessing() {
+  document.getElementById('mp-s1').style.display = 'none';
+  document.getElementById('mp-s2').style.display = 'flex';
+  setTimeout(() => {
+    document.getElementById('mp-s2').style.display = 'none';
+    document.getElementById('mp-s3').style.display = 'flex';
+    setTimeout(() => {
+      document.getElementById('mobilepay-modal').style.display = 'none';
+      showScreen('confirm');
+    }, 1200);
+  }, 2200);
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('mobilepay-modal'))
+    document.getElementById('mobilepay-modal').style.display = 'none';
+}
+
+// ─── Reset ───
+function resetDemo() {
+  cart = [];
+  history = ['home'];
+  _updateBadge();
+  _renderScreen('home');
+}
+
+// ─── Init ───
+document.getElementById('back-btn').style.display = 'none';
+</script>
+</body>
+</html>
